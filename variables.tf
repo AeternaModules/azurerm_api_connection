@@ -19,26 +19,13 @@ EOT
     parameter_values    = optional(map(string))
     tags                = optional(map(string))
   }))
-  validation {
-    condition = alltrue([
-      for k, v in var.api_connections : (
-        length(v.name) > 0
-      )
-    ])
-    error_message = "must not be empty"
-  }
-  validation {
-    condition = alltrue([
-      for k, v in var.api_connections : (
-        v.display_name == null || (length(v.display_name) > 0)
-      )
-    ])
-    error_message = "must not be empty"
-  }
   # --- Unconfirmed validation candidates, derived from azurerm_api_connection's provider source ---
   # Not auto-enabled: either a bespoke provider validator we can't safely translate,
   # or a path that crosses a list-typed block (needs its own for_each wrapping).
   # Review, translate into a real validation{} block above, and delete once confirmed.
+  # path: name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: resource_group_name
   #   condition: length(value) <= 90
   #   message:   [from resourcegroups.ValidateName: invalid when len(value) > 90]
@@ -57,6 +44,9 @@ EOT
   #   source:    [from managedapis.ValidateManagedApiID] !ok
   # path: managed_api_id
   #   source:    [from managedapis.ValidateManagedApiID] err != nil
+  # path: display_name
+  #   condition: length(value) > 0
+  #   message:   must not be empty
   # path: tags
   #   condition: length(value) <= 50
   #   message:   [from tags.Validate: invalid when len(value) > 50]
